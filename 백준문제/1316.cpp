@@ -1,6 +1,26 @@
-#include <stdio.h>
+#include<iostream>
+using namespace std; 
 
-int check[26];
+bool check[26] = {false, };
+
+bool wordCheck(string word) {
+	for(int i=0; i<word.length(); i++) {
+		if(check[word[i] - 'a']) {
+			return false; 
+		} else {
+			char temp = word[i]; 
+			check[word[i] - 'a'] = true; 
+			
+			while(1) {
+				if(temp != str[++i]) {
+					i--;
+					break; 
+				}
+			}
+		}
+	}
+	return true; 
+}
 
 int main()
 {
@@ -11,27 +31,13 @@ int main()
 	int count = 0; 
 	for(int i=0; i<N; i++) {
 		// 문자열 입력 
-  		char word[100];
-  		scanf("%s", word); 		
+  		string word;
+  		cin >> word; 
   		
-  		// 입력 문자열 길이  
-  		int len = 0; 
-  		while(word[len] != '\0') len++; 
-  		
-  		for(int j=0; j<len; j++) {
-  			for(int k=0; k<j; k++) {
-  				if(word[k] == word[j]) {
-  					if(j-k != 1) {
-  						break; 	
-					}
-				}
-
-			}
-		}
-	}
+  		if(wordCheck(word)) count++; 
+  	}
 	
 	printf("%d", count); 
-  
-  
+
   return 0;
 }
