@@ -1,44 +1,45 @@
-#include<cstdio>
+#include<iostream>
 #include<algorithm>
-int d[2][100001];
-int a[2][100001];
+#include<vector>
+using namespace std;
+
+int d[100001][3];
+int a[3][100001];
+
+int max(int num1, int num2) {
+	return num1>num2 ? num1 : num2;
+}
+
+int max3(int num1, int num2, int num3) {
+	if(num1 >= num2 && num1 >= num3) {
+		return num1; 
+	} else if(num2 >= num1 && num2 >= num3) {
+		return num2;
+	} else if(num3 >= num1 && num3 >= num2) {
+		return num3;
+	}
+}
 
 int main(void) {
-	int T;
-	scanf("%d", &T);
-	
-	while(T--) {
-		// ют╥б 
-		int N;
-		scanf("%d", &N);	
-		for(int i=0; i<2; i++) {
-			for(int j=1; j<=N; j++) {
-				scanf("%d", &a[i][j]); 
+	int t;
+	cin >> t;
+	while(t--) {
+		int n;
+		cin >> n; 
+		
+		for(int i=1; i<=2; i++) {
+			for(int j=1; j<=n; j++) {
+				cin >> a[i][j]; 
 			}
 		}
 		
-		for(int i=1; i<=N; i++) {
-			for(int j=0; j<3; j++) {
-				switch(j){
-					case 0:
-						int temp = max(a[i-1][1], a[i-1][2]);
-						a[i][0] = max(temp, a[i-1][0]);
-						break;
-					case 1:
-						a[i][1] = max(a[i-1][0], a[i-1][2]);
-						break;
-					case 2:
-						a[i][2] = max(a[i-1][0], a[i-1][1]);
-						break;
-				}
-			}
+		for(int i=1; i<=n; i++) {
+			d[i][0] = max3(d[i-1][0], d[i-1][1], d[i-1][2]);
+			d[i][1] = max(d[i-1][0], d[i-1][2]) + a[1][i];
+			d[i][2] = max(d[i-1][0], d[i-1][1]) + a[2][i];
 		}
+		
+		cout << max3(d[n][0], d[n][1], d[n][2]) << endl; 
 	}
-	
-	int temp = max(a[i][1], a[i][2]);
- 	long long int answer = max(temp, a[i][0]);
- 	
- 	printf("%d\n", answer);
-	
-	return 0; 	
+	return 0; 
 }
