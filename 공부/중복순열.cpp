@@ -2,7 +2,7 @@
 #include<vector>
 using namespace std;
 
-bool visited[8];
+bool visited[7] = {false, };
 vector<int> store;
 
 void Print() {
@@ -15,16 +15,13 @@ void Print() {
 void Dfs(int cnt, int n, int m) {
 	if(cnt == m) {
 		Print();
-		return;
+		return; 
 	}
 	
 	for(int i=0; i<n; i++) {
-		if(visited[i] == true) continue;
-		visited[i] = true;
 		store.push_back(i+1);
 		Dfs(cnt+1, n, m);
 		store.pop_back();
-		visited[i] = false;
 	}
 }
 
@@ -33,5 +30,7 @@ int main(void) {
 	scanf("%d %d", &n, &m);
 	
 	Dfs(0, n, m);
-	return 0; 
+	
+	return 0;
 }
+

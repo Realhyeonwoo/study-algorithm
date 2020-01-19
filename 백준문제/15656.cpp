@@ -1,11 +1,12 @@
 #include<iostream>
+#include<algorithm>
 #include<vector>
 using namespace std;
 
-bool visited[8];
+vector<int> arr;
 vector<int> store;
 
-void Print() {
+void Print(void) {
 	for(int i=0; i<store.size(); i++) {
 		printf("%d ", store[i]);
 	}
@@ -19,18 +20,21 @@ void Dfs(int cnt, int n, int m) {
 	}
 	
 	for(int i=0; i<n; i++) {
-		if(visited[i] == true) continue;
-		visited[i] = true;
-		store.push_back(i+1);
+		store.push_back(arr[i]);
 		Dfs(cnt+1, n, m);
 		store.pop_back();
-		visited[i] = false;
 	}
 }
 
 int main(void) {
 	int n, m;
 	scanf("%d %d", &n, &m);
+	for(int i=0; i<n; i++) {
+		int temp;
+		scanf("%d", &temp);
+		arr.push_back(temp);
+	}
+	sort(arr.begin(), arr.end());
 	
 	Dfs(0, n, m);
 	return 0; 
