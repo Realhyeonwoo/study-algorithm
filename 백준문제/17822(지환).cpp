@@ -48,7 +48,7 @@ int eraseNum(int N, int M) { // 인접한 같은 수 없애기
 
             if (ni < 1 || ni > N) continue;
             if (nj < 1) nj = M;
-            if (nj > M) nj = 0;
+            if (nj > M) nj = 1;
 
             if (plain[i][j] == plain[ni][nj]) {
                cpy[i][j] = 0;
