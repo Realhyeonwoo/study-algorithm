@@ -2,6 +2,7 @@
 #include<cstring>
 #include<vector>
 #include<cmath>
+#include<queue>
 using namespace std;
 
 int N;
@@ -13,6 +14,7 @@ int answer = 99999;
 bool divide = true;
 
 void calcPopulation(vector<int> a, vector<int> b) {
+	divide = false;
 	int pop_a = 0;
 	int pop_b = 0;
 	for(int i=0; i<a.size(); i++) {
@@ -23,15 +25,76 @@ void calcPopulation(vector<int> a, vector<int> b) {
 	}
 		
 	int gap = abs(pop_a - pop_b);
-	
 	if(answer > gap) {
 		answer = gap;
 	}
 }
 		
 bool isPossible(vector<int> a, vector<int> b) {
-
+	bool visited[11];
+	memset(visited, false, sizeof(visited));
+	// a 선거구 검사	
+	queue<int> q;
+	q.push(a[0]);
+	visited[a[0]] = true;
 	
+	while(!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		
+		for(int i=0; i<area[cur].size(); i++) {
+			int next = area[cur][i];
+			if(visited[next]) continue;
+			bool flag = true;
+			for(int j=0; j<a.size(); j++)  {
+				if(next == a[j]) {
+					flag = false;
+				}
+			}
+			if(flag) continue;
+			
+			visited[next] = true;
+			q.push(next);
+		}
+	}
+	
+	for(int i=0; i<a.size(); i++) {
+		if(!visited[a[i]]) return false;
+	}
+	
+	// b 선거구 검사
+	memset(visited, false, sizeof(visited));
+	while(!q.empty()) {
+		q.pop();
+	}
+	q.push(b[0]);
+	visited[b[0]] = true;
+	
+	while(!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		
+		for(int i=0; i<area[cur].size(); i++) {
+			int next = area[cur][i];
+			if(visited[next]) continue;
+			bool flag = true;
+			for(int j=0; j<b.size(); j++)  {
+				if(next == b[j]) {
+					flag = false;
+				}
+			}
+			if(flag) continue;
+			
+			visited[next] = true;
+			q.push(next);
+		}
+	}
+	
+	for(int i=0; i<b.size(); i++) {
+		if(!visited[b[i]]) return false;
+	}
+	
+	// a, b 둘다 가능 하면 true 반환 
 	return true;
 }
 
@@ -42,23 +105,17 @@ void dfs(int cnt) {
 		vector<int> b;
 		for(int i=1; i<=N; i++) {
 			if(check[i]) {
-				printf("%d ", i);
 				a.push_back(i);
 			} else {
 				b.push_back(i);
 			}
 		}
-//		printf("\n");
-		//선거구 가능 검사 (불가능하면 return) 
-		if(isPossible(a, b)) {
-			printf("가능\n");
-			divide = false; 			
-			// 인구 수 차이 구하기 
-			calcPopulation(a, b);
-			 
-		} else {
-			printf("불가능\n");	
-		}
+		//선거구 가능 검사 (한 곳이라도 불가능시 return) 
+		if(!isPossible(a, b)) {		
+			return;
+		} 
+		// 인구 수 차이 구하기 
+		calcPopulation(a, b);
 		
 		return;	
 	}
@@ -90,7 +147,6 @@ int main(void) {
 	// 선거구 나누기
 	for(int cnt=1; cnt<=N/2; cnt++) {
 		memset(check, false, sizeof(check));
-		printf("=======%d개=======\n", cnt);
 		dfs(0);
 		num++;
 	}
