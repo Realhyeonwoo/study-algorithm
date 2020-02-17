@@ -1,117 +1,131 @@
 #include<iostream>
-#include<vector>
-#include<utility>
 #include<cstring>
-#include<math.h>
+#include<cmath>
 using namespace std;
 
-int N, M, D; // N:세로(y), M:가로(x), D:공격거리 
-int map[16][16] = {0, }; // 0 ~ 15 ( 0 ~ (N-1)번째까지 맵  /   N번째 줄에 궁수 배치) 
-bool visited[15] = {false, };
-vector<pair<int, int> > archer;
-int backup[16][16];
-vector<int> answer;
+int N, M; // 행(세로): N, 열(가로): M 
+int D; // 공격 거리 제한 
+int map[16][16]; // 0 ~ 14 + 15(궁수)  
+int copyMap[16][16]; // 0 ~ 14 + 15(궁수)  
+bool v_archer[15]; // archer_dfs 방문 확인 
+int answer = -9999;
 
-int goUp(int ay, int ax) {	
-	int kill_y = -1, kill_x = -1;
-	int minDist = ay + D + M;
-	for(int y=ay-1; y>=0; y--) {
-		for(int x=0; x<M; x++) {
-			if(map[y][x] == 0) continue;
-			int dist = abs(ay - y) + abs(ax - x);
-			if(dist<=D && minDist>dist) {
-				minDist = dist;
-				kill_y = y;
-				kill_x = x;
+int simulation(int archer_line) {
+	int kill_count = 0;
+	for(int archer=0; archer<M; archer++) {
+		// 궁수 발견  
+		if(copyMap[archer_line][archer]) {
+			int archer_y = archer_line;
+			int archer_x = archer;
+			printf("====Archer[%d %d] ==> ", archer_y, archer_x);
+			
+			// 궁수가 죽일 수 있는 적이 있는지 확인 
+			int min_d = 9999; 
+			int enemy_y = 9999, enemy_x=9999;
+			for(int y=0; y<archer_line; y++) {
+				for(int x=0; x<M; x++) {
+					int d = abs(archer_y - y) + abs(archer_x - x);
+					if(d <= D && copyMap[y][x] != 0 ) {
+						if(d < min_d) {
+							enemy_y = y;
+							enemy_x = x;	
+						}
+					}
+				}
+			}
+			
+			// 죽일 적이 있다면 실행  
+			printf("====죽인 적 [%d %d]====\n", enemy_y, enemy_x);
+			if(enemy_y != 9999 && enemy_x != 9999)  {
+				copyMap[enemy_y][enemy_x] = 0;
+				kill_count++;	
 			}
 		}
 	}
 	
-	if(kill_y == -1) {
-		return 0;
-	} else {
-		if(backup[kill_y][kill_x] == 0) return 0;
-		backup[kill_y][kill_x] = 0;
-		return 1;
-	}
+	printf("죽인 적의 수: %d\n", kill_count);
+	return kill_count; 
 }
 
-void simulation() {
-	int kill = 0; 
-	
-	for(int y=N; y>=1; y--) {
-		for(int x=0; x<M; x++) {
-			if(backup[y][x] == 2) {
-				kill += goUp(y, x);
-			}
-		}
-		// 궁수들 한 칸 위로 이동 	
-		for(int x=0; x<M; x++) {
-			backup[y-1][x] = backup[y][x];
-		}
-	}
-	
-	
-	answer.push_back(kill);
-}
-
-void archer_dfs(int idx, int cnt) {
+void setArcher_dfs(int start, int cnt) {
 	if(cnt == 3) {
-		for(int i=0; i<M; i++) {
-			if(visited[i]) {
-				archer.push_back(make_pair(N, i));
-			}
-		}
-		
-		// copy map 
+		// RESET && COPY map (map -> copyMap) 
+		memset(copyMap, 0, sizeof(copyMap));
 		for(int y=0; y<N; y++) {
 			for(int x=0; x<M; x++) {
-				backup[y][x] = map[y][x];
+				copyMap[y][x] = map[y][x];
 			}
 		}
-		// put archer
-		for(int i=0; i<archer.size(); i++) {
-			int y = archer[i].first;
-			int x = archer[i].second;
-			backup[y][x] = 2;
+		// SET archer to copyMap
+		for(int i=0; i<15; i++) {
+			if(v_archer[i]) {
+				copyMap[N][i] = 5;
+			}
 		}
-	
-		simulation();
 		
-		archer.clear();
-		memset(backup, 0, sizeof(backup));
+		
+		// SIMULATION
+		int enemy = 0;
+		for(int y=N; y>0; y--) {
+			printf("===============Line: %d===============\n", y);
+			printf("\n=============(전)MAP=============\n");
+			for(int y=0; y<=N; y++) {
+				for(int x=0; x<M; x++) {
+					printf("%d ", copyMap[y][x]);
+				}
+				printf("\n");
+			}
+			printf("=============MAP=============\n");
+			
+			enemy += simulation(y);
+			printf("누적으로 적을 준인 수: %d\n", enemy);
+			
+			printf("=============(후)MAP=============\n");
+			for(int y=0; y<=N; y++) {
+				for(int x=0; x<M; x++) {
+					printf("%d ", copyMap[y][x]);
+				}
+				printf("\n");
+			}
+			printf("=============MAP=============\n");
+			
+			
+			// 한 줄 위로  
+			for(int x=0; x<M; x++) {
+				copyMap[N-1][x] = copyMap[N][x];
+			}
+		
+		}
+		
+
+	
+		if(answer < enemy) answer = enemy;
+		
 		return;
 	}
 	
-	for(int i=idx; i<M; i++) {
-		if(visited[i]) continue;
-		visited[i] = true;
-		archer_dfs(i, cnt+1);
-		visited[i] = false;
+	for(int i=start; i<M; i++) {
+		if(v_archer[i]) continue;
+		v_archer[i] = true;
+		setArcher_dfs(i, cnt+1);
+		v_archer[i] = false;
 	}
-	
 }
 
 int main(void) {
-	// 입력 
+	//INPUT
 	scanf("%d %d %d", &N, &M, &D); 
-	for(int y=0; y<N; y++){
+	for(int y=0; y<N; y++) {
 		for(int x=0; x<M; x++) {
 			scanf("%d", &map[y][x]);
 		}
-	}
+	} // 빈칸(0), 적(1) 
 	
-	// 궁수 배치(0 ~ M-1 중 3개 뽑기)
-	archer_dfs(0, 0);
 	
-	int maxValue = -1;
-	for(int q=0; q<answer.size(); q++) {
-		if(maxValue < answer[q]) {
-			maxValue = answer[q];
-		}
-	}
+	// 궁수 배치 (M개 중 3개 뽑는 조합) 
+	setArcher_dfs(0, 0);
 	
-	printf("%d\n", maxValue);
-	
+	// OUTPUT
+	printf("%d\n", answer);
 	return 0;
 }
