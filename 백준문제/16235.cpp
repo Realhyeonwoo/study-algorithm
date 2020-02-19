@@ -20,7 +20,6 @@ vector<Tree> map[11][11]; // 각 칸의 나무 정보
  
 int main(void) {
 	// 초기 양분 저장  
-//	memset(now_energy, 5, sizeof(now_energy));
 	for(int i=1; i<=10; i++) {
 		for(int j=1; j<=10; j++) {
 			now_energy[i][j] = 5;
