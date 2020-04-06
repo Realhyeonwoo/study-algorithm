@@ -7,7 +7,6 @@ int number = 6;
 int INF = 987654321;
 
 vector<pair<int, int> > a[7];
-bool visited[7];
 int d[7];
 
 void init(void) {
@@ -39,11 +38,9 @@ void init(void) {
 	a[6].push_back(make_pair(5, 2));
 }
 
-//int cnt = 0;
 void dijkstra(int start) {
 	d[start] = 0;
 	priority_queue<pair<int, int> > pq;
-	visited[start] = true;
 	pq.push(make_pair(start, 0));
 	
 	while(!pq.empty()) {
@@ -56,9 +53,6 @@ void dijkstra(int start) {
 		for(int i=0; i<a[current].size(); i++) {
 			int next = a[current][i].first;
 			int nextDistance = distance + a[current][i].second;
-//			printf("%d %d %d\n", next, nextDistance, cnt++);
-//			if(visited[next]) continue;
-//			printf("%d %d %d\n", next, nextDistance, cnt++);
 			if(nextDistance < d[next]) {
 				d[next] = nextDistance;
 				pq.push(make_pair(next, -nextDistance));

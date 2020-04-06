@@ -1,114 +1,153 @@
 #include<iostream>
+#include<queue>
 #include<cstring>
+
+#define INF 987654321
 using namespace std;
 
 int R, C, N;
-char map[101][101]; // 1 ~ 100
-char copyMap[101][101];
+char map[101][101];
 bool visited[101][101];
+bool clusterVisited[101][101];
+vector<pair<int, int> > airMineral;
 
-int dy[] = {-1, 1, 0, 0};
-int dx[] = {0, 0, -1, 1};
+int dy[] = {0, 0, 1, -1};
+int dx[] = {1, -1, 0, 0};
 
-void check_dfs(int y, int x) {
-	for(int dir=0; dir<4; dir++) {
-		int ny = y + dy[dir];
-		int nx = x + dx[dir];
-		
-		if(ny<0 || ny>=R || nx<0 || nx>=C) continue;
-		if(copyMap[ny][nx] != 5 || visited[ny][nx]) continue;
-		
-		visited[ny][nx] = true;
-		copyMap[ny][nx] = 1;
-		check_dfs(ny, nx);
+bool destroyMineral(char from, int height) {
+	if(from == 'L') {
+		for(int x=1; x<=C; x++) {
+			if(map[height][x] == 'x') {
+				map[height][x] = '.';
+				return true;
+			}
+		}
+	} else { 
+		for(int x=C; x>=1; x--) {
+			if(map[height][x] == 'x') {
+				map[height][x] = '.';
+				return true;
+			}
+		}
 	}
+	return false;
+}
+
+void check_bfs(int y, int x) {
+	queue<pair<int, int> > q;
+	q.push(make_pair(y, x));
+	visited[y][x] = true;
+	
+	while(!q.empty()) {
+		int cy = q.front().first;
+		int cx = q.front().second;
+		q.pop();
+		
+		for(int dir=0; dir<4; dir++) {
+			int ny = cy + dy[dir];
+			int nx = cx + dx[dir];
+			
+			if(ny<1 || ny>R || nx<1 || nx>C) continue;
+			if(!visited[ny][nx] && map[ny][nx] == 'x') {
+				visited[ny][nx] = true;
+				q.push(make_pair(ny, nx));
+			}
+		}
+	}
+}
+
+int calcGapHeight(int y, int x) {
+	int count = 1;
+	for(int height = y+1; height<=R; height++) {
+		if(map[height][x] == 'x') {
+			if(clusterVisited[height][x]) return INF;
+			else return count-1;
+		} else {
+			count++;
+		}
+	}
+	return count-1;
 }
 
 int main(void) {
 	// INPUT
 	scanf("%d %d", &R, &C);
-	for(int y=0; y<R; y++) {
-		for(int x=0; x<C; x++) {
+	for(int y=1; y<=R; y++) {
+		for(int x=1; x<=C; x++) {
 			scanf(" %c", &map[y][x]);
 		}
 	}
-	
-	// SIMULATION
 	scanf("%d", &N);
-	int height;
-	int direction = 1; // from ¿ÞÂÊ(1), ¿À¸¥ÂÊ(-1) 
-	for(int n=1; n<=N; n++) {
-		scanf("%d", &height); // R - height
-		height = R - height;
+	// SIMULATION
+	int num;
+	for(int i=0; i<N; i++) {
+//		INIT
+		scanf("%d", &num);
+		int h = R - num + 1;
+		memset(visited, false, sizeof(visited));
+		memset(clusterVisited, false, sizeof(clusterVisited));
+		airMineral.clear();
 		
-		// CHECK_STICK DIRECTION && DESTROY_MINERAL
-		bool isDestroy = false;
-		if(direction == 1){
-			for(int x=0; x<R; x++) {
-				if(map[height][x] == 'x') {
-					map[height][x] = '.';
-					isDestroy = true;
-					break;
-				}
-			}
-		} else {
-			for(int x=R-1; x>=0; x--) {
-				if(map[height][x] == 'x') {
-					map[height][x] = '.';
-					isDestroy = true;
-					break;
+//		printf("#####################[ %d ]###################\n", num);
+//		DESTROY_MINERAL
+		bool isDestroy = destroyMineral(i%2==0 ? 'L' : 'R', h);
+		
+//		printf("\n\n DESTROY STATUS\n");
+//		for(int y=1; y<=R; y++) {
+//			for(int x=1; x<=C; x++) {
+//				printf("%c", map[y][x]);
+//			}
+//			printf("\n");
+//		}		
+
+//		CHECK_DESTORY
+		if(!isDestroy) continue;
+		
+//		MOVE_DESTROY
+		for(int x=1; x<=C; x++) {
+			if(!visited[R][x]) check_bfs(R, x);
+		}
+		
+		for(int y=1; y<=R; y++) {
+			for(int x=1; x<=C; x++) {
+				if(map[y][x] == 'x' && !visited[y][x]) {
+					airMineral.push_back(make_pair(y, x));
+					clusterVisited[y][x] = true;
 				}
 			}
 		}
 		
-		// CHECK_CLUSTER
-		if(isDestroy) {
-			memset(copyMap, 0, sizeof(copyMap));
-			memset(visited, 0, sizeof(visited));
-			
-			for(int y=0; y<R; y++) {
-				for(int x=0; x<C; x++) {
-					if(map[y][x] == 'x') {
-						copyMap[y][x] = 5;
-					} else {
-						copyMap[y][x] = 0;
-					}
-				}
-			}
-			
-			for(int x=0; x<C; x++) {
-				if(copyMap[R-1][x] != 5) continue;
-				visited[R-1][x] = true;
-				copyMap[R-1][x] = 1;
-				check_dfs(R-1, x);
-			}
-			
-			// MOVE_CLUSTER	
-			for(int y=R-2; y>=0; y--) {
-				for(int x=0; x<C; x++) {
-					if(copyMap[y][x] != 5) continue;
-					int tempY = y;
-					while(1) {
-						if(tempY == R-1 || map[tempY+1][x] == 'x') break;
-						map[tempY+1][x] = 'x';
-						map[tempY][x] = '.';
-						copyMap[tempY+1][x] = 5;
-						copyMap[tempY][x] = 0;
-						tempY++;
-					}
-				}
-			}
+		int minHeight = INF;
+		for(int i=0; i<airMineral.size(); i++) {
+			int y = airMineral[i].first;
+			int x = airMineral[i].second;
+			minHeight = min(minHeight, calcGapHeight(y, x));
+//			printf("%d %d %d \n", y, x, minHeight);
 		}
 		
-		// CHANGE_DIRECTION
-		direction *= -1;
+		if(minHeight != INF) {
+			for(int i=airMineral.size()-1; i>=0; i--) {
+				int y = airMineral[i].first;
+				int x = airMineral[i].second;
+			
+				map[y+minHeight][x] = 'x';
+				map[y][x] = '.';
+				
+			}
+		}
+//		printf("\n\n MOVE STATUS\n");
+//		for(int y=1; y<=R; y++) {
+//			for(int x=1; x<=C; x++) {
+//				printf("%c", map[y][x]);
+//			}
+//			printf("\n");
+//		}
+//		printf("\n");
 	}
 	
-	
-	
 	// OUTPUT
-	for(int y=0; y<R; y++) {
-		for(int x=0; x<C; x++) {
+	for(int y=1; y<=R; y++) {
+		for(int x=1; x<=C; x++) {
 			printf("%c", map[y][x]);
 		}
 		printf("\n");
@@ -116,97 +155,3 @@ int main(void) {
 	
 	return 0;
 }
-
-/*
-
-8 ........
-7 ........
-6 .....xx.
-5 ...xxx..
-4 ..xxx...
-3 ..x.xxx.
-2 ..x...x.
-1 .xxx..x.
-
-
-8 ........
-7 ........
-6 .....x..
-5 ...xxx..
-4 ..xxx...
-3 ..x.xxx.
-2 ..x...x.
-1 .xxx..x.
-
-
-8 ........
-7 ........
-6 .....x..
-5 ...xxx..
-4 ..xxx...
-3 ..x.xxx.
-2 ..x...x.
-1 .xxx..x.
-
-
-8 ........
-7 ........
-6 .....x..
-5 ...xxx..
-4 ...xx...
-3 ..x.xxx.
-2 ..x...x.
-1 .xxx..x.
-
-
-
-8 ........
-7 ........
-6 .....x..
-5 ...xxx..
-4 ...xx...
-3 ..x.xx..
-2 ..x...x.
-1 .xxx..x.
-
-8 ........
-7 ........
-6 .....x..
-5 ...xxx..
-4 ...xx...
-3 ..x.xx..
-2 ..x...x.
-1 .xxx..x.
-
-
-8 ........
-7 ........
-6 ........
-5 ........
-4 .....x..
-3 ..xxxx..
-2 ..xxx.x.
-1 .xxxxxx.
-
-
-
-
-
-
-
-
-
-8 ........
-7 ........
-6 ...x.xx.
-5 ...xxx..
-4 ..xxx...
-3 ..x.xxx.
-2 ..x...x.
-1 .xxx..x.
-
-
-
-
-
-*/

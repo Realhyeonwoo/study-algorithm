@@ -1,95 +1,25 @@
 #include<iostream>
-#include<vector>
-#include<queue>
-#include<cstring>
 using namespace std;
 
-int R, C;
-char map[1500][1500];
-bool visited[1500][1500];
-vector<pair<int, int> > swan;
-queue<pair<int, int> > moveQ, moveNextQ, waterQ, waterNextQ;
-
-int dy[] = {-1, 1, 0, 0};
-int dx[] = {0, 0, -1, 1};
-
-bool move_bfs() {
-	while(!moveQ.empty()) {
-		int y = moveQ.front().first;
-		int x = moveQ.front().second;
-		moveQ.pop();
-		
-		if(y == swan[1].first && x == swan[1].second) return true;
-		
-		for(int dir=0; dir<4; dir++) {
-			int ny = y + dy[dir];
-			int nx = x + dx[dir];
-			
-			if(ny<0 || ny>=R || nx<0 || nx>=C) continue;
-			if(visited[ny][nx]) continue;
-			
-			if(map[ny][nx] == 'X') {
-				visited[ny][nx] = true;
-				moveNextQ.push(make_pair(ny, nx));
-			} else {
-				visited[ny][nx] = true;
-				moveQ.push(make_pair(ny, nx));
-			}
-			
-		}
-	}
-	return false;
-}
-
-void water_bfs() {
-	while(!waterQ.empty()) {
-		int y = waterQ.front().first;
-		int x = waterQ.front().second;
-		waterQ.pop();
-		
-		for(int dir=0; dir<4; dir++) {
-			int ny = y + dy[dir];
-			int nx = x + dx[dir];
-			
-			if(ny<0 || ny>=R || nx<0 || nx>=C) continue;
-			if(map[ny][nx] == 'X') {
-				map[ny][nx] = '.';
-				waterNextQ.push(make_pair(ny, nx));
-			}
-		}
-	}
-}
+int n, cnt;
+int a[111], chk[111], ans[111];
 
 int main(void) {
-	// INPUT
-	scanf("%d %d", &R, &C);
-	for(int y=0; y<R; y++) {
-		for(int x=0; x<C; x++) {
-			scanf(" %c", &map[y][x]);
-			if(map[y][x] != 'X') waterQ.push(make_pair(y, x));
-			if(map[y][x] == 'L') {
-				swan.push_back(make_pair(y, x));
-			}
+	scanf("%d", &n);
+	for(int i=1; i<=n; i++) {
+		scanf("%d", &a[i]);
+	}
+	
+	for(int i=1; i<=n; i++) {
+		for(int j=1; j<=n; j++) {
+			chk[j] = ans[j];
 		}
-	}
-	// SIMULATION
-	moveQ.push(make_pair(swan[0].first, swan[0].second));
-	visited[swan[0].first][swan[0].second] = true;
-	
-	int answer = 0;	
-	while(1) {
-		if(move_bfs()) break;
-		water_bfs();
-		
-		moveQ = moveNextQ;
-		waterQ = waterNextQ;
-		
-		while(!moveNextQ.empty()) moveNextQ.pop();
-		while(!waterNextQ.empty()) waterNextQ.pop();
-		answer++;
+		dfs(a[i], i);
 	}
 	
-	// OUTPUT
-	printf("%d\n", answer);
+	printf("%d\n", cnt);
+	for(int i=1; i<=n; i++) {
+		if(ans[i]) printf("%d\n", i);
+	}
 	return 0;
 }

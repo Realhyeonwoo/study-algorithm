@@ -1,57 +1,62 @@
+/*
+	50m 당 한병  / 맥주 최대 20병 => 최대 1000m 이동 가능
+*/
+
 #include<iostream>
 #include<vector>
+#include<algorithm>
 #include<cstring>
-#include<queue>
-#include<cmath>
-#include<cstdlib>
 using namespace std;
 
-int t, n;
+int T, n;
 vector<pair<int, int> > v;
+vector<int> node[102];
 bool visited[102];
 
-bool dist(int x1, int y1, int x2, int y2) {
-	return (abs(x1 - x2) + abs(y1-y2)) <= 1000 ? true : false;
+void dfs(int start) {
+	visited[start] = true;
+	
+	for(int i=0; i<node[start].size(); i++) {
+		int next = node[start][i];
+		if(visited[next]) continue;
+		
+		dfs(next);
+	}
 }
 
 int main(void) {
-	scanf("%d", &t);
-	for(int test_case=1; test_case<=t; test_case++) {
-		// INPUT
-		scanf("%d", &n);
-		int x, y;
-		for(int i=0; i<n+2; i++) {
-			scanf("%d %d", &x, &y);
-			v.push_back(make_pair(x, y));
+	scanf("%d", &T);
+	for(int tc=1; tc<=T; tc++) {
+		// INIT
+		memset(visited, false, sizeof(visited));
+		v.clear();
+		for(int i=0; i<102; i++) {
+			node[i].clear();
 		}
 		
-		queue<int> q;
-		q.push(0);
-		visited[0] = true;
+		// INPUT
+		scanf("%d", &n);
+		int y, x;
+		for(int i=0; i<n+2; i++) {
+			scanf("%d %d", &y, &x);
+			v.push_back(make_pair(y, x));
+		}
 		
-		bool isFind = false;
-		while(!q.empty()) {
-			int now = q.front();
-			q.pop();
-			
-			if(v[now].first == v[n+1].first && v[now].second == v[n+1].second) {
-				isFind = true;
-				break;
-			}
-			
-			for(int i=1; i<n+2; i++) {
-				if(!visited[i] && dist(v[now].first, v[now].second, v[i].first, v[i].second)) {
-					q.push(i);
-					visited[i] = true;
+		// SIMULATION
+		for(int i=0; i<n+2; i++) {
+			for(int j=i+1; j<n+2; j++) {
+				int distance = abs(v[i].first - v[j].first) + abs(v[i].second + v[j].second);
+				if(distance <= 1000) {
+					node[i].push_back(j);
+					node[j].push_back(i);
 				}
 			}
 		}
 		
-		if(isFind) {
-			printf("happy\n");
-		} else {
-			printf("sad\n");
-		}
+		dfs(0);
+		
+		// OUTPUT
+		printf("%s\n", visited[n+1] ? "happy" : "sad");
 	}
 	
 	return 0;
