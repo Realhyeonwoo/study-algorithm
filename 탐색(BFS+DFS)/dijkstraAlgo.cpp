@@ -1,16 +1,17 @@
 #include<iostream>
-#include<vector>
 #include<queue>
+#include<vector>
+
+#define MAX 7
+#define INF 987675321
 using namespace std;
 
-int number = 6;
-int INF = 987654321;
+vector<pair<int, int> > a[MAX];
+int d[MAX];
 
-vector<pair<int, int> > a[7];
-int d[7];
-
-void init(void) {
-	for(int i=1; i<=number; i++) d[i] = INF;
+void init() {
+	for(int i=1; i<MAX; i++) d[i] = INF;
+	
 	a[1].push_back(make_pair(2, 2));
 	a[1].push_back(make_pair(3, 5));
 	a[1].push_back(make_pair(4, 1));
@@ -41,21 +42,20 @@ void init(void) {
 void dijkstra(int start) {
 	d[start] = 0;
 	priority_queue<pair<int, int> > pq;
-	pq.push(make_pair(start, 0));
+	pq.push(make_pair(d[start], start));
 	
 	while(!pq.empty()) {
-		int current = pq.top().first;
-		int distance = -pq.top().second;
+		int cur = pq.top().second;
+		int distance = -pq.top().first;
 		pq.pop();
 		
-		if(d[current] < distance) continue;
-		
-		for(int i=0; i<a[current].size(); i++) {
-			int next = a[current][i].first;
-			int nextDistance = distance + a[current][i].second;
+		if(distance > d[cur]) continue;
+		for(int i=0; i<a[cur].size(); i++) {
+			int next = a[cur][i].first;
+			int nextDistance = distance + a[cur][i].second;
 			if(nextDistance < d[next]) {
 				d[next] = nextDistance;
-				pq.push(make_pair(next, -nextDistance));
+				pq.push(make_pair(-d[next], next));
 			}
 		}
 	}
@@ -64,9 +64,8 @@ void dijkstra(int start) {
 int main(void) {
 	init();
 	dijkstra(1);
-	for(int i=1; i<=number; i++) {
+	for(int i=1; i<MAX; i++) {
 		printf("%d ", d[i]);
 	}
 	return 0;
 }
-

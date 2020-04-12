@@ -1,113 +1,72 @@
 #include<iostream>
-#include<cmath>
+#include<vector>
+#include<queue>
+#include<algorithm>
 
-#define MAX 10
-#define INF 987654321
+#define MAX 8
 using namespace std;
 
-int N, M, answer = INF;
-char map[MAX][MAX];
-pair<int, int> Red, Blue;
+vector<pair<int, int> > node[MAX];
+bool visited[MAX];
 
-int dy[] = {0, 0, 1, -1};
-int dx[] = {1, -1, 0, 0};
-
-int inverseDirection(int d) {
-	if(d == 0) return 1;
-	else if(d == 1) return 0;
-	else if(d == 2) return 3;
-	else if(d == 3) return 2;
+void init() {
+	node[1].push_back(make_pair(7, 12));
+	node[1].push_back(make_pair(4, 28));
+	node[1].push_back(make_pair(2, 67));
+	node[1].push_back(make_pair(5, 17));
+	
+	node[2].push_back(make_pair(4, 24));
+	node[2].push_back(make_pair(5, 62));
+	node[2].push_back(make_pair(1, 67));
+	
+	node[3].push_back(make_pair(5, 20));
+	node[3].push_back(make_pair(6, 37));
+	
+	node[4].push_back(make_pair(7, 13));
+	node[4].push_back(make_pair(1, 28));
+	node[4].push_back(make_pair(2, 24));
+	
+	node[5].push_back(make_pair(6, 45));
+	node[5].push_back(make_pair(7, 73));
+	node[5].push_back(make_pair(1, 17));
+	node[5].push_back(make_pair(2, 62));
+	node[5].push_back(make_pair(3, 20));
+	
+	node[6].push_back(make_pair(3, 37));
+	node[6].push_back(make_pair(5, 45));
+	
+	node[7].push_back(make_pair(1, 12));
+	node[7].push_back(make_pair(4, 13));
+	node[7].push_back(make_pair(5, 73));
 }
 
-int calcDist(int ny, int nx, int y, int x) {
-	return abs(ny - y) + abs(nx - x);
-}
-
-void move(int ry, int rx, int by, int bx, int cnt, int dir) {
-	if(cnt > 10 || cnt >= answer) return;
-	bool rFlag = false, bFlag = false;
+int main(void) { 
+	init();
 	
-	int nry = ry + dy[dir];
-	int nrx = rx + dx[dir];
-	while(1) {
-		if(map[nry][nrx] == '#') break;
-		if(map[nry][nrx] == 'O') {
-			rFlag = true;
-			break;	
-		}
-		nry += dy[dir];
-		nrx += dx[dir];
-	}
-	nry -= dy[dir];
-	nrx -= dx[dir];
-	
-	int nby = by + dy[dir];
-	int nbx = bx + dx[dir];
-	while(1) {
-		if(map[nby][nbx] == '#') break;
-		if(map[nby][nbx] == 'O') {
-			bFlag = true;
-			break;
-		}
-		nby += dy[dir];
-		nbx += dx[dir];
-	}
-	nby -= dy[dir];
-	nbx -= dx[dir];
-	
-	if(bFlag) return;
-	if(rFlag) {
-		answer = min(answer, cnt);
-		return;
+	priority_queue<pair<int, int> > pq;
+	for(int i=0; i<node[1].size(); i++) {
+		pq.push(make_pair(-node[1][i].second, node[1][i].first));
 	}
 	
-	if(nry == nby && nrx == nbx) {
-		int rDist = calcDist(nry, nrx, ry, rx);
-		int bDist = calcDist(nby, nbx, by, bx);
+	visited[1] = true;
+	int sum = 0;
+	while(!pq.empty()) {
+		int cur = pq.top().second;
+		int distance = -pq.top().first;
+		pq.pop();
 		
-		if(rDist > bDist) {
-			nry -= dy[dir];
-			nrx -= dx[dir];
-		} else {
-			nby -= dy[dir];
-			nbx -= dx[dir];
-		}
-	}
-	
-	for(int i=0; i<4; i++) {
-		if(i == dir) continue;
-		if(i == inverseDirection(dir)) continue;
-		move(nry, nrx, nby, nbx, cnt+1, i);
-	}
-}
-
-int main(void) {
-	// INPUT
-	scanf("%d %d", &N, &M);
-	for(int y=0; y<N; y++) {
-		for(int x=0; x<M; x++) {
-			scanf(" %c", &map[y][x]);
-			if(map[y][x] == 'R') {
-				Red.first = y;
-				Red.second = x;
-				map[y][x] = '.';
-			}
-			if(map[y][x] == 'B') {
-				Blue.first = y;
-				Blue.second = x;
-				map[y][x] = '.';
+		if(visited[cur]) continue;
+		visited[cur] = true;
+		sum += distance;
+		for(int i=0; i<node[cur][i].size(); i++) {
+			int next = node[cur][i].first;
+			int nextDistance = node[cur][i].second;
+			if(!visited[next]) {
+				pq.push(make_pair(-nextDistance, next));
 			}
 		}
 	}
 	
-	// SIMULATION
-	for(int dir=0; dir<4; dir++) {
-		move(Red.first, Red.second, Blue.first, Blue.second, 1, dir);
-	}
-	
-	// OUTPUT	
-	if(answer > 10 || answer == INF) answer = -1;
-	printf("%d\n", answer);
-	
+	printf("%d\n", sum);
 	return 0;
 }
