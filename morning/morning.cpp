@@ -1,5 +1,4 @@
 #include<iostream>
-#include<vector>
 #include<queue>
 #include<algorithm>
 
@@ -40,15 +39,15 @@ void init() {
 	node[7].push_back(make_pair(5, 73));
 }
 
-int main(void) { 
+int main(void) {
 	init();
 	
 	priority_queue<pair<int, int> > pq;
 	for(int i=0; i<node[1].size(); i++) {
 		pq.push(make_pair(-node[1][i].second, node[1][i].first));
 	}
-	
 	visited[1] = true;
+	
 	int sum = 0;
 	while(!pq.empty()) {
 		int cur = pq.top().second;
@@ -58,7 +57,7 @@ int main(void) {
 		if(visited[cur]) continue;
 		visited[cur] = true;
 		sum += distance;
-		for(int i=0; i<node[cur][i].size(); i++) {
+		for(int i=0; i<node[cur].size(); i++) {
 			int next = node[cur][i].first;
 			int nextDistance = node[cur][i].second;
 			if(!visited[next]) {
