@@ -1,21 +1,21 @@
 #include<iostream>
-#include<string>
 #include<queue>
 #include<cstring>
+#include<string>
 
-#define MAX 111
+#define MAX 102
 using namespace std;
 
 int h, w, answer;
 char map[MAX][MAX];
 bool visited[MAX][MAX];
-string First_Key;
-bool keys[26];
+string strKey;
+bool key[26];
 
 int dy[] = {0, 0, 1, -1};
 int dx[] = {1, -1, 0, 0};
 
-void bfs(void) {
+void bfs() {
 	queue<pair<int, int> > q;
 	queue<pair<int, int> > Door[26];
 	q.push(make_pair(0, 0));
@@ -25,7 +25,7 @@ void bfs(void) {
 		int y = q.front().first;
 		int x = q.front().second;
 		q.pop();
-		
+				
 		for(int dir=0; dir<4; dir++) {
 			int ny = y + dy[dir];
 			int nx = x + dx[dir];
@@ -35,20 +35,20 @@ void bfs(void) {
 			
 			visited[ny][nx] = true;
 			if('A'<=map[ny][nx] && map[ny][nx]<='Z') {
-				if(keys[map[ny][nx] - 'A']) {
+				if(key[map[ny][nx] - 'A']) {
 					q.push(make_pair(ny, nx));
 				} else {
 					Door[map[ny][nx] - 'A'].push(make_pair(ny, nx));
 				}
-			} else if('a'<= map[ny][nx] && map[ny][nx]<='z') {
+			} else if('a'<=map[ny][nx] && map[ny][nx]<='z') {
 				q.push(make_pair(ny, nx));
-				if(!keys[map[ny][nx] - 'a']) {
-					keys[map[ny][nx] - 'a'] = true;
-					while(Door[map[ny][nx] - 'a'].empty() == 0) {
+				if(!key[map[ny][nx] - 'a']) {
+					key[map[ny][nx] - 'a'] = true;
+					while(!Door[map[ny][nx] - 'a'].empty()) {
 						q.push(Door[map[ny][nx] - 'a'].front());
 						Door[map[ny][nx] - 'a'].pop();
 					}
-				} 
+				}
 			} else {
 				q.push(make_pair(ny, nx));
 				if(map[ny][nx] == '$') answer++;
@@ -56,7 +56,6 @@ void bfs(void) {
 		}
 	}
 }
-
 int main(void) {
 	int T;
 	scanf("%d", &T);
@@ -64,33 +63,28 @@ int main(void) {
 		// INIT
 		memset(map, 0, sizeof(map));
 		memset(visited, false, sizeof(visited));
-		memset(keys, false, sizeof(keys));
-		First_Key.clear();
+		memset(key, false, sizeof(key));
+		strKey.clear();
 		answer = 0;
-				
+		
 		// INPUT
 		scanf("%d %d", &h, &w);
 		for(int y=1; y<=h; y++) {
 			for(int x=1; x<=w; x++) {
-//				cin >> map[y][x];
 				scanf(" %c", &map[y][x]);
 			}
 		}
-		
-		 cin >> First_Key;
-    for (int i = 0; i < First_Key.length(); i++)
-    {
-        if (First_Key[i] == '0') continue;
-        keys[First_Key[i] - 'a'] = true;
-    }
-
+		cin >> strKey;
+		for(int i=0; i<strKey.length(); i++) {
+			if(strKey[i] == '0') continue;
+			key[strKey[i] - 'a'] = true;
+		}
 		
 		// SIMULATION
 		bfs();
 		
 		// OUTPUT
 		printf("%d\n", answer);
-	
 	}
-	return 0;
+	return 0; 
 }
