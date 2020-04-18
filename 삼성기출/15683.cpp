@@ -1,25 +1,17 @@
 #include<iostream>
 #include<vector>
 
+#define MAX 8 
 #define INF 987564321
 using namespace std;
 
-int N, M; // N(세로) M(가로)
-int map[10][10], cpyMap[10][10];
-bool visited[10][10];
+int N, M; // N(세로) M(가로)  
+int map[MAX][MAX], cpyMap[MAX][MAX];
 vector<pair<pair<int, int>, pair<int, int> > > v;
 int answer = INF;
 
 int dy[] = {0, 0, 1, -1};
 int dx[] = {1, -1, 0, 0};
-
-void copyMap(void) {
-	for(int y=0; y<10; y++) {
-		for(int x=0; x<10; x++) {
-			cpyMap[y][x] = map[y][x];
-		}
-	}
-}
 
 void moveRight(int y, int x) {
 	for(int i=x+1; i<M; i++) {
@@ -28,7 +20,6 @@ void moveRight(int y, int x) {
 		cpyMap[y][i] = -1;
 	}
 }
-
 void moveLeft(int y, int x) {
 	for(int i=x-1; i>=0; i--) {
 		if(cpyMap[y][i] == 6) break;
@@ -36,81 +27,94 @@ void moveLeft(int y, int x) {
 		cpyMap[y][i] = -1;
 	}
 }
-
 void moveUp(int y, int x) {
 	for(int i=y-1; i>=0; i--) {
 		if(cpyMap[i][x] == 6) break;
 		if(1<=cpyMap[i][x] && cpyMap[i][x]<=5) continue;
-		cpyMap[y][i] = -1;
+		cpyMap[i][x] = -1;
 	}
 }
-
 void moveDown(int y, int x) {
 	for(int i=y+1; i<N; i++) {
 		if(cpyMap[i][x] == 6) break;
 		if(1<=cpyMap[i][x] && cpyMap[i][x]<=5) continue;
-		cpyMap[y][i] = -1;
+		cpyMap[i][x] = -1;
 	}
 }
 
 void checkCameraArea() {
-	copyMap();	
-	for(int i=0; i<v.size(); i++) {
-		if(v[i].second.first == 1) {
-			if(v[i].second.second == 0) moveRight(v[i].first.first, v[i].first.second);
-			else if(v[i].second.second == 1) moveLeft(v[i].first.first, v[i].first.second);
-			else if(v[i].second.second == 2) moveDown(v[i].first.first, v[i].first.second);
-			else if(v[i].second.second == 3) moveUp(v[i].first.first, v[i].first.second);
-		} else if(v[i].second.first == 2) {
-			if(v[i].second.second == 0 || v[i].second.second == 1) {
-				moveRight(v[i].first.first, v[i].first.second);
-				moveLeft(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 2 || v[i].second.second == 3) {
-				moveUp(v[i].first.first, v[i].first.second);
-				moveDown(v[i].first.first, v[i].first.second);
-			}
-		} else if(v[i].second.first == 3) {
-			if(v[i].second.second == 0) {
-				moveUp(v[i].first.first, v[i].first.second);
-				moveRight(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 1) {
-				moveDown(v[i].first.first, v[i].first.second);
-				moveRight(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 2) {
-				moveDown(v[i].first.first, v[i].first.second);
-				moveLeft(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 3) {
-				moveUp(v[i].first.first, v[i].first.second);
-				moveLeft(v[i].first.first, v[i].first.second);
-			}
-		} else if(v[i].second.first == 4) {
-			if(v[i].second.second == 0) {
-				moveUp(v[i].first.first, v[i].first.second);
-				moveLeft(v[i].first.first, v[i].first.second);
-				moveRight(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 1) {
-				moveUp(v[i].first.first, v[i].first.second);
-				moveDown(v[i].first.first, v[i].first.second);
-				moveRight(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 2) {
-				moveLeft(v[i].first.first, v[i].first.second);
-				moveDown(v[i].first.first, v[i].first.second);
-				moveRight(v[i].first.first, v[i].first.second);
-			} else if(v[i].second.second == 3) {
-				moveUp(v[i].first.first, v[i].first.second);
-				moveDown(v[i].first.first, v[i].first.second);
-				moveLeft(v[i].first.first, v[i].first.second);
-			} 
-		} else if(v[i].second.first == 5) {
-			moveUp(v[i].first.first, v[i].first.second);
-			moveDown(v[i].first.first, v[i].first.second);
-			moveLeft(v[i].first.first, v[i].first.second);
-			moveRight(v[i].first.first, v[i].first.second);
+	// COPY_MAP
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<M; x++) {
+			cpyMap[y][x] = map[y][x];
 		}
+	}
+	// CHECK_CAMERA_AREA
+	for(int i=0; i<v.size(); i++) {
+		int y = v[i].first.first;
+		int x = v[i].first.second;
+		int type = v[i].second.first;
+		int dir = v[i].second.second;
+		
+		if(type == 1) {
+			if(dir == 0) moveRight(y, x);
+			else if(dir == 1) moveLeft(y, x);
+			else if(dir == 2) moveDown(y, x);
+			else if(dir == 3) moveUp(y, x);
+		} else if(type == 2) {
+			if(dir == 0 || dir == 1) {
+				moveRight(y, x);
+				moveLeft(y, x);
+			} else if(dir == 2 || dir == 3) {
+				moveDown(y, x);
+				moveUp(y, x);
+			}
+		} else if(type == 3) {
+			if(dir == 0) {
+				moveUp(y, x);
+				moveRight(y, x);
+			}
+			else if(dir == 1){
+				moveRight(y, x);
+				moveDown(y, x);
+			} 
+			else if(dir == 2){
+				moveLeft(y, x);
+				moveDown(y, x);
+			} 
+			else if(dir == 3) {
+				moveUp(y, x);
+				moveLeft(y, x);
+			}
+		} else if(type == 4) {
+			if(dir == 0) {
+				moveUp(y, x);
+				moveRight(y, x);
+				moveLeft(y, x);
+			} else if(dir == 1) {
+				moveUp(y, x);
+				moveRight(y, x);
+				moveDown(y, x);
+			} else if(dir == 2) {
+				moveDown(y, x);
+				moveRight(y, x);
+				moveLeft(y, x);
+			} else if(dir == 3) {
+				moveUp(y, x);
+				moveLeft(y, x);
+				moveDown(y, x);
+			}
+		} else if(type == 5) {
+			moveUp(y, x);
+			moveRight(y, x);
+			moveLeft(y, x);
+			moveDown(y, x);
+		}
+			
 	}
 }
 
-int numOfSecretArea(void) {
+int numOfSecretArea() {
 	int sum = 0;
 	for(int y=0; y<N; y++) {
 		for(int x=0; x<M; x++) {
@@ -146,7 +150,7 @@ int main(void) {
 	for(int y=0; y<N; y++) {
 		for(int x=0; x<M; x++) {
 			scanf("%d", &map[y][x]);
-			if(map[y][x] != 0 && map[y][x] != 6) {
+			if(1<=map[y][x] && map[y][x]<=5){
 				v.push_back(make_pair(make_pair(y, x), make_pair(map[y][x], -1)));
 			}
 		}
