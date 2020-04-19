@@ -1,5 +1,7 @@
 #include<iostream>
+#include<vector>
 #include<queue>
+#include<algorithm>
 
 #define MAX 8
 using namespace std;
@@ -7,7 +9,7 @@ using namespace std;
 vector<pair<int, int> > node[MAX];
 bool visited[MAX];
 
-void init() {
+void init(void) {
 	node[1].push_back(make_pair(7, 12));
 	node[1].push_back(make_pair(4, 28));
 	node[1].push_back(make_pair(2, 67));
@@ -37,7 +39,6 @@ void init() {
 	node[7].push_back(make_pair(4, 13));
 	node[7].push_back(make_pair(5, 73));
 }
-
 int main(void) {
 	init();
 	
@@ -56,14 +57,16 @@ int main(void) {
 		if(visited[cur]) continue;
 		visited[cur] = true;
 		sum += distance;
+		
 		for(int i=0; i<node[cur].size(); i++) {
 			int next = node[cur][i].first;
 			int nextDistance = node[cur][i].second;
 			if(!visited[next]) {
 				pq.push(make_pair(-nextDistance, next));
 			}
-			
 		}
 	}
+	
 	printf("%d\n", sum);
+	return 0;
 }
