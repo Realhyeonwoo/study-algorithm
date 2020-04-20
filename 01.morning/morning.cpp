@@ -1,8 +1,6 @@
 #include<iostream>
 #include<vector>
 #include<queue>
-#include<algorithm>
-
 #define MAX 8
 using namespace std;
 
@@ -39,6 +37,7 @@ void init(void) {
 	node[7].push_back(make_pair(4, 13));
 	node[7].push_back(make_pair(5, 73));
 }
+
 int main(void) {
 	init();
 	
@@ -51,16 +50,17 @@ int main(void) {
 	int sum = 0;
 	while(!pq.empty()) {
 		int cur = pq.top().second;
-		int distance = -pq.top().first;
+		int value = -pq.top().first;
 		pq.pop();
 		
 		if(visited[cur]) continue;
 		visited[cur] = true;
-		sum += distance;
+		sum += value;
 		
 		for(int i=0; i<node[cur].size(); i++) {
 			int next = node[cur][i].first;
 			int nextDistance = node[cur][i].second;
+			
 			if(!visited[next]) {
 				pq.push(make_pair(-nextDistance, next));
 			}
