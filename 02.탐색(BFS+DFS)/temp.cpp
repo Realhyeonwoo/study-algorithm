@@ -56,6 +56,7 @@ int main(void) {
 	
 //	setInit();
 	
-	setPair();
+//	setPair();
+	cout << toupper('A') << endl;
 	return 0;
 }
