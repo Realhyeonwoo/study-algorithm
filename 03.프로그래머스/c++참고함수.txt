@@ -1,0 +1,19 @@
+stoi
+isspace() 
+to_string
+toupper()
+tolower()
+
+#include <sstream>
+vector<string> result;
+string token;
+stringstream ss(s);
+
+while (getline(ss, token, ' ')) {
+	result.push_back(token);
+}
+for(int i=0; i<result.size(); i++) cout << result[i] << endl;
+
+unique()
+map
+set

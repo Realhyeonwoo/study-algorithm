@@ -47,6 +47,9 @@ void setPair(void) {
 	for(iter = s.begin(); iter != s.end(); iter++) {
 		cout << (*iter).first << " " << (*iter).second << endl;
 	}
+	
+	
+	
 }
 
 int main(void) {
