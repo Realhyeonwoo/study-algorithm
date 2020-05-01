@@ -86,11 +86,11 @@ int main(void) {
 					if(map[y][x] == Min) continue;
 					if(y == cy && cx == x) continue;
 					
-//					for(int t=1; t<=K; t++) {
+					for(int t=1; t<=K; t++) {
 						cpyMap[y][x] = cpyMap[y][x] - K;
 						dfs(cy, cx, cpyMap, 1);
 						cpyMap[y][x] = cpyMap[y][x] + K;
-//					}
+					}
 				}
 			}
 		}
