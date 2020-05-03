@@ -1,105 +1,69 @@
 #include<iostream>
-#include<queue>
 #include<vector>
-
-#define MAX 7
-#define INF 987564321
+#include<queue>
+#define MAX 8
 using namespace std;
 
-vector<pair<int, int> > a[MAX];
-int d[MAX];
-int node[MAX][MAX];
+vector<pair<int, int> > node[MAX];
+bool visited[MAX];
 
-void init(void) {
-	for(int i=1; i<MAX; i++) d[i] = INF;
+void init() {
+		node[1].push_back(make_pair(7, 12));
+	node[1].push_back(make_pair(4, 28));
+	node[1].push_back(make_pair(2, 67));
+	node[1].push_back(make_pair(5, 17));
 	
-	a[1].push_back(make_pair(2, 2));
-	a[1].push_back(make_pair(3, 5));
-	a[1].push_back(make_pair(4, 1));
+	node[2].push_back(make_pair(4, 24));
+	node[2].push_back(make_pair(5, 62));
+	node[2].push_back(make_pair(1, 67));
 	
-	a[2].push_back(make_pair(1, 2));
-	a[2].push_back(make_pair(3, 3));
-	a[2].push_back(make_pair(4, 2));
+	node[3].push_back(make_pair(5, 20));
+	node[3].push_back(make_pair(6, 37));
 	
-	a[3].push_back(make_pair(1, 5));
-	a[3].push_back(make_pair(2, 3));
-	a[3].push_back(make_pair(4, 3));
-	a[3].push_back(make_pair(5, 1));
-	a[3].push_back(make_pair(6, 5));
+	node[4].push_back(make_pair(7, 13));
+	node[4].push_back(make_pair(1, 28));
+	node[4].push_back(make_pair(2, 24));
 	
-	a[4].push_back(make_pair(1, 1));
-	a[4].push_back(make_pair(2, 2));
-	a[4].push_back(make_pair(3, 3));
-	a[4].push_back(make_pair(5, 1));
+	node[5].push_back(make_pair(6, 45));
+	node[5].push_back(make_pair(7, 73));
+	node[5].push_back(make_pair(1, 17));
+	node[5].push_back(make_pair(2, 62));
+	node[5].push_back(make_pair(3, 20));
 	
-	a[5].push_back(make_pair(3, 1));
-	a[5].push_back(make_pair(4, 1));
-	a[5].push_back(make_pair(6, 2));
+	node[6].push_back(make_pair(3, 37));
+	node[6].push_back(make_pair(5, 45));
 	
-	a[6].push_back(make_pair(3, 5));
-	a[6].push_back(make_pair(5, 2));
-	
-	for(int y=1; y<MAX; y++) {
-		for(int x=1; x<MAX; x++) {
-			node[y][x] = INF;
-			if(y == x) node[y][x] = 0;
-		}
-	}
-	
-	for(int i=1; i<MAX; i++) {
-		for(int j=0; j<a[i].size(); j++) {
-			node[i][a[i][j].first] = a[i][j].second;
-		}
-	}
+	node[7].push_back(make_pair(1, 12));
+	node[7].push_back(make_pair(4, 13));
+	node[7].push_back(make_pair(5, 73));
 }
-
-void dijkstra(int start) {
-	d[start] = 0;
-	priority_queue<pair<int, int> > pq;
-	pq.push(make_pair(d[start], start));
+int main(void) {
+	init();
 	
+	priority_queue<pair<int, int> > pq;
+	for(int i=0; i<node[1].size(); i++) {
+		pq.push(make_pair(-node[1][i].second, node[1][i].first));
+	}
+	visited[1] = true;
+	
+	int sum = 0; 
 	while(!pq.empty()) {
 		int cur = pq.top().second;
 		int distance = -pq.top().first;
 		pq.pop();
 		
-		if(distance > d[cur]) continue;
-		
-		for(int i=0; i<a[cur].size(); i++) {
-			int next = a[cur][i].first;
-			int nextDistance = distance + a[cur][i].second;
-			if(nextDistance < d[next]) {
-				d[next] = nextDistance;
-				pq.push(make_pair(-d[next], next));
+		if(visited[cur]) continue;
+		visited[cur] = true;
+		sum += distance;
+		for(int i=0; i<node[cur].size(); i++) {
+			int next = node[cur][i].first;
+			int nextDistance = node[cur][i].second;
+			if(!visited[next]) {
+				pq.push(make_pair(-nextDistance, next));
 			}
 		}
 	}
-}
-
-void floydWarshall(void) {
-	for(int i=1; i<MAX; i++) {
-		for(int y=1; y<MAX; y++) {
-			for(int x=1; x<MAX; x++) {
-				if(node[y][i] + node[i][x] < node[y][x]) {
-					node[y][x] = node[y][i] + node[i][x];
-				}
-			}
-		}
-	}
-	for(int y=1; y<MAX; y++) {
-		for(int x=1; x<MAX; x++) {
-			printf("%d ", node[y][x]);
-		}
-		printf("\n");
-	}
-}
-int main(void) {
-	init();
 	
-	dijkstra(3);
-	printf("dijktra\n");
-	for(int i=1; i<MAX; i++) printf("%d ", d[i]);
-	printf("\nFloydWarshall\n");
-	floydWarshall();
+	printf("%d\n", sum);
 	return 0;
 }
