@@ -1,52 +1,41 @@
 #include<iostream>
 using namespace std;
 
-int map[8][8] = {  		{0,0,1,1,1,1,1,1},
-						{1,0,0,0,0,0,0,1},
-						{1,1,1,0,1,1,1,1},
-						{1,1,1,0,1,1,1,1},
-						{1,0,0,0,0,0,0,1},
-						{1,0,1,0,1,1,1,1},
-						{1,0,0,0,0,0,0,0},
-						{1,1,1,1,1,1,1,5}
-			};
-bool v[8][8] = { false, };
+int gameResult[4][18];
+int valid;
+vector<int> Answer;
 
-int cnt = 1;
-
-void dfs(int y, int x) {
-	if(map[y][x] == 5) {
-		printf("arrived: %d \n", cnt);
+// 0 1 2 3 4 5
+void dfs(int t1, int t2, int r) {
+	if(t2 == 6) {
+		dfs(t1+1, t1+2, r);
 		return;
 	}
 	
-	int dx[] = { -1, 1, 0, 0};
-	int dy[] = { 0, 0, -1, 1};
-	for(int dir=0; dir<4; dir++) {
-		int ny = y + dy[dir];
-		int nx = x + dx[dir];
-		
-		if(ny<0 || ny>=8 || nx<0 || nx>=8) continue;
-		if(v[ny][nx] || map[ny][nx]==1) continue;
-		
-		cnt += 1;
-		v[ny][nx] = true;
-		
-		dfs(ny, nx);
-		cnt -= 1;
-//		v[ny][nx] = false;
-		
+	if(t1 > 4) {
+		for(int c=0; c<gameResult[r].length; c++) {
+			if(gameResult[r][c] > 0) {
+				valid = 0;
+				return;
+			}
+		}
+		valid = 1;
+		return;
 	}
+	
+	
 }
 
 int main(void) {
-	dfs(0, 0); 
+	for(int r=0; r<4; r++) {
+		for(int c=0; c<18; c++) {
+			scanf("%d", &gameResult[r][c]);
+		}
+		valid = 0;
+		dfs(0, 1, r);
+		Answer.push_back(valid);
+	}
 	
-//	for(int y=0; y<8; y++) {
-//		for(int x=0; x<8; x++) {
-//			printf("%d ", map[y][x]);
-//		}
-//		printf("\n");
-//	}
+	for(int i=0; i<Answer.size(); i++) printf("%d ", Answer[i]);
 	return 0;
 }

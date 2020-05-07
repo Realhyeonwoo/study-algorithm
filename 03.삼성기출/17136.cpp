@@ -1,69 +1,102 @@
 #include<iostream> 
-#include<queue>
+#include<vector>
+#include<algorithm>
+
 #define MAX 10
 using namespace std;
 
-typedef struct {
-	int width, height;
-}Info;
-
+int Answer = 987564321, Total_Cnt;
 int map[MAX][MAX];
 bool visited[MAX][MAX];
-vector<Info> v;
+bool Already_Answer = true;
+vector<pair<int, int> > v;
 
-int dy[] = {0, 0, 1, -1};
-int dx[] = {1, -1, 0, 0};
-
-void bfs(int a, int b) {
-	int width = 0, height = 0;
-	
-	visited[a][b] = true;
-	queue<pair<int, int> > 	q;
-	q.push(make_pair(a, b));
-	
-	while(!q.empty()) {
-		int y = q.front().first;
-		int x = q.front().second;
-		q.pop();
-		
-		for(int dir=0; dir<4; dir++) {
-			int ny = y + dy[dir];
-			int nx = x + dx[dir];
-			
-			if(ny<0 || ny>=10 || nx<0 || nx>=10) continue;
-			if(visited[ny][nx] || map[ny][nx] == 0) continue;
-			
-			visited[ny][nx] = true;
-			if(dir == 0 || dir == 1) width++;
-			else if(dir == 2 || dir == 3) height++;
-			q.push(make_pair(ny, nx));
+bool Can_Fill(int x, int y, int r) {
+	int Cnt = 0; 
+	for(int i=x; i<x+r; i++)	 {
+		if(i >= MAX) break;
+		for(int j=y; j<y+r; j++) {
+			if(j >= MAX) break;
+			if(map[i][j] == 1 && !visited[i][j]) cnt++;
 		}
 	}
-	v.push_back({width, height});
+	
+	if(cnt == r*r) return true;
+	else return false;
+}
+
+inf Find_Range(int x, int y) {
+	if(Can_Fill(x, y, 2)){
+		if(Can_Fill(x, y, 3)) {
+			if(Can_Fill(x, y, 4)) {
+				if(Can_Fill(x, y, 5)) {
+					return 5;
+				}
+				return 4;
+			}
+			return 3;
+		}
+		return 2;
+	}
+	return 1;
+}
+
+void Make_Visit(int x, int y, int r, bool t) {
+	for (int i = x; i < x + r; i++) {
+		for (int j = y; j < y + r; j++) {
+			Visit[i][j] = t;
+		}
+   }
+}
+void DFS(int idx, int One, int Two, int Three, int Four, int Five, int Total) {
+	int Use = One + Two + Three + Four + Five;
+	
+	if(Answer < Use) return;
+	if(Total == Total_Cnt) {
+		Answer = min(Answer, Use);
+		return;
+	}
+	
+	if(visited[v[idx].first][v[i].second]) {
+		dfs(idx+1, One, Two, Three, Four, Five, Total);
+		return; 
+	}
+	
+	int Can_Fill = Find_Range(v[idx].first, v[idx].second);
+	if(Can_Fill == 1) {
+		if(One + 1 <= 5) {
+			Make_Visit(v[idx].first, v[idx].second, 1, true);
+			DFS(idx+1, One+1, Two, Three, Four, Five, Total+1);
+			Make_Visit(v[idx].first, v[idx].second, 1, false);
+		}
+	} else if(Can_Fill == 2) {
+		
+	} else if(Can_Fill == 3) {
+	} else if(Can_Fill == 4) {
+	} else if(Can_Fill == 5) {
+	}
 }
 
 int main(void) {
-	// INPUT
-	for(int y=0; y<MAX; y++) {
-		for(int x=0; x<MAX; x++) {
-			scanf("%d", &map[y][x]);
+	for(int i=0; i<MAX; i++) {
+		for(int j=0; j<MAX; j++) {
+			cin >> map[i][j];
+			if(map[i][j] == 1) {
+				v.push_back(make_pair(i, j));
+				Total_Cnt++;
+				Already_Answer = false;
+			}
 		}
 	}
 	
-	// SIMULATION
-	for(int y=0; y<MAX; y++) {
-		for(int x=0; x<MAX; x++) {
-			if(map[y][x] == 1 && !visited[y][x]) bfs(y, x); 
-		}
+	if(Already_Answer) {
+		cout << 0 << endl;
+		return;
 	}
 	
-	for(int i=0; i<v.size(); i++) {
-		printf("%d %d \n", v[i].width, v[i].height);
-	}
-	// OUTPUT
-	if(v.size() == 0) printf("0\n");
-	else {
-		
-	}
+	DFS(0, 0, 0, 0, 0, 0, 0);
+	
+	if(Answer == 987564321) Answer = -1;
+	cout << Answer << endl;
 	return 0;
 }
