@@ -11,6 +11,7 @@ string solution(string s) {
     stringstream ss(s);
     string token;
     while(getline(ss, token, ' ')) {
+    	//        arr.push_back(atoi(token.c_str()));
         arr.push_back(stoi(token));
     }
     sort(arr.begin(), arr.end());
