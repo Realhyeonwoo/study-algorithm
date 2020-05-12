@@ -1,22 +1,72 @@
-// boj-6987
 #include<iostream>
-using namespace std; 
+#include<vector>
+#define ROW 4
+#define COL 18
+using namespace std;
 
-int map[4][18];
-int answer[4];
+int map[ROW][COL], valid;
+vector<int> Answer;
 
-int main(void) {
-	for(int y=0; y<4; y++) {
-		int win = 0, lose = 0;
-		for(int x=0; x<18; x++) {
-			scanf("%d", &map[y][x]);
-			if(x%3 ==0) win += map[y][x];
-			else lose += map[y][x];
+// 0 1 2 3 4 5 
+void dfs(int t1, int t2, int game[]) {
+	if(t1 > 4) {
+		for(int i=0; i<COL; i++) {
+			if(game[i] > 0) return;
 		}
-		if(win == lose) answer[y] = 1;
+		valid = 1;
+		return;
 	}
 	
-	for(int i=0; i<4; i++) printf("%d ", answer[i]);
-	printf("\n");
+	if(t2 == 6) {
+		dfs(t1+1, t1+2, game);
+		return;
+	}
+	
+	if(game[t1*3 + 0] > 0 && game[t2*3 + 2] > 0) {
+		game[t1*3 + 0]--;
+		game[t2*3 + 2]--;
+		dfs(t1, t2+1, game);
+		game[t1*3 + 0]++;
+		game[t2*3 + 2]++;
+	}
+	
+	if(game[t1*3 + 1] > 0 && game[t2*3 + 1] > 0) {
+		game[t1*3 + 1]--;
+		game[t2*3 + 1]--;
+		dfs(t1, t2+1, game);
+		game[t1*3 + 1]++;
+		game[t2*3 + 1]++;
+	}
+	
+	if(game[t1*3 + 2] > 0 && game[t2*3 + 0] > 0) {
+		game[t1*3 + 2]--;
+		game[t2*3 + 0]--;
+		dfs(t1, t2+1, game);
+		game[t1*3 + 2]++;
+		game[t2*3 + 0]++;
+	}
+	
+}
+
+int main(void) {
+	// INPUT
+	for(int y=0; y<ROW; y++) {
+		for(int x=0; x<COL; x++) {
+			scanf("%d", &map[y][x]);
+		}
+	}
+	
+	// SIMULATION
+	for(int y=0; y<ROW; y++) {
+		valid = 0;
+		dfs(0, 1, map[y]);
+		Answer.push_back(valid);
+	}
+	
+	
+	// OUTPUT
+	for(int i=0; i<Answer.size(); i++) {
+		printf("%d ", Answer[i]);
+	}
 	return 0;
 }
