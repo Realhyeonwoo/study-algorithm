@@ -1,37 +1,46 @@
 #include<iostream>
+#include<vector>
 #include<queue>
+
 #define MAX 32001
 using namespace std;
 
-int N, M;
-int map[MAX];
-bool visited[MAX];
-int value = 32000;
-priority_queue<pair<int, int> > pq;
+int N, M, inDegree[MAX];
+vector<int> a[MAX];
+
+void topologySort(void) {
+	int result[MAX];
+	queue<int> q;
+	
+	for(int i=1; i<=N; i++) {
+		if(inDegree[i] == 0) {
+			q.push(i);
+			printf("%d ", i);
+		}
+	}
+	printf("\n");
+	
+	for(int i=1; i<=N; i++) {
+		int x = q.front();
+		q.pop();
+		result[i] = x;
+		for(int i=0; i<a[x].size(); i++) {
+			int y = a[x][i];
+			if(--inDegree[y] == 0) q.push(y);
+		}
+	}
+	for(int i=1; i<=N; i++) printf("%d ", result[i]);
+}
 
 int main(void) {
 	scanf("%d %d", &N, &M);
 	int num1, num2;
 	for(int i=0; i<M; i++) {
 		scanf("%d %d", &num1, &num2);
-		if(!visited[num2]) {
-			map[num2] = value--;
-			visited[num2] = true;
-			pq.push(make_pair(-map[num2], num2));
-		}
-		
-		if(!visited[num1]) {
-			map[num1] = map[num2] - 1;
-			visited[num1] = true;
-			pq.push(make_pair(-map[num1], num1));
-		} 
+		a[num1].push_back(num2);
+		inDegree[num2]++;
 	}
-	
-	while(!pq.empty()) {
-		printf("%d ", pq.top().second);
-		pq.pop();
-	}
-	
+	topologySort(); 
 	
 	return 0;
 }
