@@ -1,25 +1,50 @@
 #include <iostream>
-#include <string>
 #include <vector>
-#include <sstream>
-#include <algorithm>
+#include <queue>
+
+#define MAX 10
 using namespace std;
 
-string solution(string s) {
-    string answer = "";
-    vector<int> arr;
-    stringstream ss(s);
-    string token;
-    while(getline(ss, token, ' ')) {
-		arr.push_back(stoi(token));
-    }
-    sort(arr.begin(), arr.end());
-    answer = to_string(arr[0]) + " " + to_string(arr[arr.size() - 1]);
-    return answer;
+int n, inDegree[MAX];
+vector<int> a[MAX];
+
+void init(void) {
+	a[1].push_back(2); inDegree[2] ++;
+	a[1].push_back(5); inDegree[5] ++;
+	a[2].push_back(3); inDegree[3] ++;
+	a[3].push_back(4); inDegree[4] ++;
+	a[4].push_back(6); inDegree[6] ++;
+	a[5].push_back(6); inDegree[6] ++;
+	a[6].push_back(7); inDegree[7] ++;
 }
 
 int main(void) {
-	string str = "1 -2 -3 -4";
-	cout << solution(str) << endl;
+	init();
+	
+	int result[MAX];
+	queue<int> q;
+	
+	for(int i=1; i<=7; i++) {
+		if(inDegree[i] == 0) q.push(i);
+	}
+	
+	for(int i=1; i<=7; i++) {
+		if(q.empty()) {
+			printf("Cycle exists");
+			return 0;
+		}
+		
+		int x = q.front();
+		q.pop();
+		result[i] = x;
+		for(int i=0; i<a[x].size(); i++) {
+			int y = a[x][i];
+			inDegree[y]--;
+			if(inDegree[y] == 0) q.push(y);
+		}
+	}
+	
+	for(int i=1; i<=7; i++) printf("%d ", result[i]);
+	
 	return 0;
 }
