@@ -1,29 +1,25 @@
-#include <iostream>
-#include <queue>
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<cstring>
+
 #define MAX 100
 using namespace std;
 
-int R, C;
+int N, M;
 int map[MAX][MAX];
 int visited[MAX][MAX];
 
 int dy[] = {0, 0, 1, -1};
 int dx[] = {1, -1, 0, 0};
 
-int getCheeseCount(void) {
-	int sum = 0;
-	for(int y=0; y<R; y++) {
-		for(int x=0; x<C; x++) {
-			if(map[y][x] == 1) sum++;
-		}
-	}
-	return sum;
-}
+vector<pair<int, int> > air;
+queue<pair<int, int> > nq;
 
-void setInitMap(int a, int b) {
+void First_Air_State() {
 	queue<pair<int, int> > q;
-	q.push(make_pair(a, b));
-	map[a][b] = -1;
+	q.push(make_pair(0, 0));
+	visited[0][0] = 1;
 	
 	while(!q.empty()) {
 		int y = q.front().first;
@@ -34,10 +30,79 @@ void setInitMap(int a, int b) {
 			int ny = y + dy[dir];
 			int nx = x + dx[dir];
 			
-			if(ny<0 || ny>=R || nx<0 || nx>=C) continue;
-			if(map[ny][nx] == 0) {
-				map[ny][nx] = -1;
+			if(ny<0 || ny>=N || nx<0 || nx>=M) continue;
+			if(map[ny][nx] == 0 && visited[ny][nx] == 0) {
+				visited[ny][nx] = 1;
 				q.push(make_pair(ny, nx));
+			}
+		}
+	}
+}
+
+void Divide_Air() {
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<M; x++) {
+			if(visited[y][x] == 1) {
+				for(int dir=0; dir<4; dir++) {
+					int ny = y + dy[dir];
+					int nx = x + dx[dir];
+					if(ny<0 || nx<0 || ny>=N || nx>=M) continue;
+					if(map[ny][nx] == 1) {
+						nq.push(make_pair(y, x));
+						break;
+					}
+				}
+			}
+			
+		}
+	}
+}
+
+bool Check() {
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<M; x++) {
+			if(map[y][x] == 1) return false;
+		}
+	}
+	return true;
+}
+
+void Melting_Cheese() {
+	queue<pair<int, int> > q = nq;
+	while(!nq.empty()) nq.pop();
+	while(!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+		
+		for(int dir=0; dir<4; dir++) {
+			int ny = y + dy[dir];
+			int nx = x + dx[dir];
+			
+			if(ny<0 || nx<0 || ny>=N || nx>=M) continue;
+			if(map[ny][nx] == 1) {
+				map[ny][nx] = 0;
+				nq.push(make_pair(ny, nx));
+			}
+		}
+	}
+}
+
+void Add_Air() {
+	queue<pair<int, int> > q = nq;
+	while(!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+		
+		for(int dir=0; dir<4; dir++) {
+			int ny = y + dy[dir];
+			int nx = x + dx[dir];
+			if(ny<0 || nx<0 || ny>=M || nx>=N) continue;
+			if(visited[ny][nx] == 0) {
+				visited[ny][nx] = 1;
+				q.push(make_pair(ny, nx));
+				nq.push(make_pair(ny, nx));
 			}
 		}
 	}
@@ -45,40 +110,33 @@ void setInitMap(int a, int b) {
 
 int main(void) {
 	// INPUT
-	scanf("%d %d", &R, &C);
-	for(int y=0; y<R; y++) {
-		for(int x=0; x<C; x++) {
+	scanf("%d %d", &N, &M);
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<M; x++) {
 			scanf("%d", &map[y][x]);
+			if(map[y][x] == 1) visited[y][x] = -1;
 		}
 	}
 	
-	// SIMULAITON
-	setInitMap(0, 0);
+	// SIMULATION
+	First_Air_State();
+	Divide_Air();
 	
-	queue<pair<int, int> > q;
-	int time = 0, count = 0;
+	int Time = 0;
+	int Final_Size = 0;
+	
 	while(1) {
-		time++;
-		count = getCheeseCount();
+		if(Check()) break;
 		
-		for(int y=0; y<R; y++) {
-			for(int x=0; x<C; x++) {
-				if(map[y][x] == -1) q.push(make_pair(y, x));
-			}
-		}
+		Melting_Cheese();
+		Final_Size = nq.size();
 		
-		while(!q.empt)
-		
+		Add_Air();
+		Time++;
 	}
-	
-//	for(int y=0; y<R; y++) {
-//		for(int x=0; x<C; x++) {
-//			printf("%d ", map[y][x]);
-//		}
-//		printf("\n");
-//	}
 	
 	// OUTPUT
+	printf("%d\n%d\n", Time, Final_Size); 
 	
 	return 0;
 }
