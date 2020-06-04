@@ -41,6 +41,5 @@ int main(void) {
 		else cout << "Possible" << "\n";
 	}
 	
-	
 	return 0;
 }

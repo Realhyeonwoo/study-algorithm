@@ -1,34 +1,37 @@
-#include <iostream>
-#include <algorithm>
-#include <stack>
-#include <vector>
+#include<iostream>
+#include<stack>
+#include<string>
 using namespace std;
-int n;
-int arr[100010];
-stack<int> st;
-vector<char> ans;
- 
-int main() {
-    int it = 1;
-    scanf(" %d", &n);
-    for (int i = 0; i < n; i++) scanf(" %d", &arr[i]);
-    for (int i = 0; i < n; i++) {
-        if (st.empty() || st.top() != arr[i]) {
-            while (true) {
-                if (it > n) {
-                    puts("NO"); return 0;
-                }
-                st.push(it++);
-                ans.push_back('+');
-                if (st.top() == arr[i]) {
-                    st.pop();
-                    ans.push_back('-'); break;
-                }
-            }
-        }
-        else if (st.top() == arr[i]) {
-            st.pop(); ans.push_back('-');
-        }
-    }
-    for (int i = 0; i < ans.size(); i++) printf("%c\n", ans[i]);
+
+int n, now = 1;
+stack<int> S;
+string ans = "";
+
+int main(void) {
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	
+	cin >> n;
+	int num;
+	for(int i=1; i<=n; i++) {
+		cin >> num;
+		while(now <= num) {
+			S.push(now++);
+			ans += "+";
+		}
+		
+		if(!S.empty() && S.top() == num) {
+			S.pop();
+			ans += '-';
+			continue;
+		} else {
+			cout << "NO" << "\n";
+			ans = "";
+			break;
+		}
+	}
+		for(int i=0; i<ans.length(); i++) {
+			cout << ans[i] << "\n";
+		}
+	return 0;
 }
