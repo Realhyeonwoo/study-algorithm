@@ -1,73 +1,84 @@
 #include<iostream>
-#include<vector>
-#include<cstring>
-#include<utility>
-#include<algorithm>
+#include<queue>
+#define MAX 100
 using namespace std;
 
-int n;
-int map[100][100];
-int minValue = 9999, maxValue = -9999;
-int clone[100][100];
-int visited[100][100] = {false, };
-vector<int> answer; 
+int N, Height, map[MAX][MAX], cpyMap[MAX][MAX];
+bool visited[MAX][MAX];
+int Answer;
 
-void dfs(int y, int x) {
-	clone[y][x] = -1;
-	visited[y][x] = true;
+int dy[] = {0, 0, 1, -1};
+int dx[] = {1, -1, 0, 0};
+
+void bfs(int a, int b) {
+	queue<pair<int, int> > Q;
+	Q.push(make_pair(a, b));
+	visited[a][b] = true;
 	
-	int dy[] = {-1, 1, 0, 0};
-	int dx[] = {0, 0, -1, 1};
-	for(int dir=0; dir<4; dir++) {
-		int ny = y + dy[dir];
-		int nx = x + dx[dir];
-		if(ny<0 || ny>=n || nx<0 || nx>=n) continue;
-		if(!visited[ny][nx] && clone[ny][nx]>0) {
-			dfs(ny, nx);
+	while(!Q.empty()) {
+		int y = Q.front().first;
+		int x = Q.front().second;
+		Q.pop();
+		
+		for(int dir=0; dir<4; dir++) {
+			int ny = y + dy[dir];
+			int nx = x + dx[dir];
+			
+			if(ny<0 || ny>=N || nx<0 || nx>=N) continue;
+			if(cpyMap[ny][nx] == -1 || visited[ny][nx]) continue;
+			
+			visited[ny][nx] = true;
+			Q.push(make_pair(ny, nx));
 		}
 	}
 }
 
-void pour(int height) {
-	memset(clone, 0, sizeof(clone));
-	memset(visited, 0, sizeof(visited));
-	int cnt = 0;
-	// บนป็ 
-	for(int y=0; y<n; y++) {
-		for(int x=0; x<n; x++) {
-			if(map[y][x] <= height) {
-				clone[y][x] = 0;
-			} else {
-				clone[y][x] = map[y][x];	
-			}
+void setMap(int height) {
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<N; x++) {
+			cpyMap[y][x] = map[y][x];
+			if(cpyMap[y][x] <= height) cpyMap[y][x] = -1;
 		}
 	}
+}
+
+int checkArea(int height) {
+	setMap(height);
+	for(int y=0; y<N; y++) fill(visited[y], visited[y] + N, false);
 	
-	for(int y=0; y<n; y++) {
-		for(int x=0; x<n; x++) {
-			if(!visited[y][x] && clone[y][x] > 0) {
-				cnt++;
-				dfs(y, x);
+	int count = 0;
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<N; x++) {
+			if(cpyMap[y][x] != -1 && !visited[y][x]) {
+					bfs(y, x);
+					count++;
 			}
 		}
 	}
-	answer.push_back(cnt);
+	return count;
 }
 
 int main(void) {
-	scanf("%d", &n);
-	for(int y=0; y<n; y++) {
-		for(int x=0; x<n; x++) {
-			scanf("%d", &map[y][x]);
-			if(minValue > map[y][x]) minValue = map[y][x];
-			if(maxValue < map[y][x]) maxValue = map[y][x];
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	
+	// INPUT
+	cin >> N;
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<N; x++) {
+			cin >> map[y][x];
+			Height = max(Height, map[y][x]);
 		}
 	}
-	for(int h=0; h<=maxValue; h++) {
-		pour(h);
+	
+	// SIMULATION
+	for(int i=1; i<Height; i++) {
+		Answer = max(Answer, checkArea(i));
 	}
 	
-	sort(answer.begin(), answer.end());
-	printf("%d\n", answer[answer.size()-1]);
+	// OUTPUT	
+	if(Answer == 0) cout << 1 << '\n';
+	else cout << Answer << '\n';
+	
 	return 0;
 }

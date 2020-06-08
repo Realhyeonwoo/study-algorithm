@@ -1,82 +1,72 @@
 #include<iostream>
-#include<vector>
 #include<queue>
-#include<cstring>
-#include<utility>
+#include<vector>
+#include<string>
 #include<algorithm>
+#define MAX 25
 using namespace std;
 
-int n;
-int map[25][25];
-bool visited[25][25] = { false, };
-vector<int> group;
-int groupNum = -1;
+int N, map[MAX][MAX];
+bool visited[MAX][MAX];
+vector<int> V;
 
-void bfs(pair<int, int> pos) {
-	queue< pair<int, int> > q;
-	q.push(pos);
-	visited[pos.first][pos.second] = true;
+int dy[] = {0, 0, 1, -1};
+int dx[] = {1, -1, 0, 0};
+
+void bfs(int a, int b) {
+	queue<pair<int, int> > Q;
+	Q.push(make_pair(a, b));
+	visited[a][b] = true;
 	
-	while(!q.empty()) {
-		pair<int, int> cur = q.front();
-		q.pop();
-		int cy = cur.first;
-		int cx = cur.second;
+	int sum = 0;
+	while(!Q.empty()) {
+		int y = Q.front().first;
+		int x = Q.front().second;
+		Q.pop();
 		
-		map[cy][cx] = groupNum;
+		sum++;
 		
-		int dy[] = { -1, 1, 0, 0};
-		int dx[] = {0, 0, -1, 1};
 		for(int dir=0; dir<4; dir++) {
-			int ny = cy + dy[dir];
-			int nx = cx + dx[dir];
+			int ny = y + dy[dir];
+			int nx = x + dx[dir];
 			
-			if(ny<0 || ny>=n || nx<0 || nx>=n) continue;
-			if(!visited[ny][nx] && map[ny][nx] == 1) {
-				visited[ny][nx] = true;
-				q.push(make_pair(ny, nx));
-			}
+			if(ny<0 || ny>=N || nx<0 || nx>=N) continue;
+			if(map[ny][nx] == 0 || visited[ny][nx]) continue;
+			
+			visited[ny][nx] = true;
+			Q.push(make_pair(ny, nx));
 		}
 	}
-	groupNum--;
+	
+	V.push_back(sum);
 }
 
 int main(void) {
-	scanf("%d", &n); 
-	for(int y=0; y<n; y++) {
-		for(int x=0; x<n; x++) {
-			scanf("%1d", &map[y][x]);
-		}
-	}
-
-	for(int y=0; y<n; y++) {
-		for(int x=0; x<n; x++) {
-			if(map[y][x] == 1) {
-				bfs(make_pair(y, x));
-			}
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	
+	// INPUT
+	string str;
+	cin >> N;
+	for(int y=0; y<N; y++) {
+		cin >> str;
+		for(int x=0; x<N; x++) {
+			map[y][x] = str[x] - '0';
+			if(map[y][x] == 1) map[y][x] = -1;
 		}
 	}
 	
-	groupNum += 1;
-	int count = groupNum * (-1);
-	printf("%d\n", count);
-	
-	for(int i=groupNum; i<=-1; i++) {
-		count = 0; 
-		for(int y=0; y<n; y++) {
-			for(int x=0; x<n; x++) {
-				if(map[y][x] == i) {
-					count++;
-				}
-			}
+	// SIMULATION
+	for(int y=0; y<N; y++) {
+		for(int x=0; x<N; x++) {
+			if(map[y][x] == -1 && !visited[y][x]) bfs(y, x);
 		}
-		group.push_back(count);
 	}
 	
-	sort(group.begin(), group.end());
-	for(int i=0; i<group.size(); i++) {
-		printf("%d\n", group[i]); 
-	}
-
-	return 0; 
+	// OUTPUT
+	sort(V.begin(), V.end());
+	cout << V.size() << '\n';
+	for(int i=0; i<V.size(); i++) cout << V[i] << '\n';
+	
+	return 0;
 }

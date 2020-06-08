@@ -1,55 +1,71 @@
 #include<iostream>
-#include<utility>
-#include<cstring>
 #include<queue>
+#define MAX 300
 using namespace std;
 
-int T;
-int size;
-int visited[300][300] = {0, };
-int sy, sx;
-int ty, tx;
+int l, map[MAX][MAX];
+bool visited[MAX][MAX];
+pair<int, int> Start, End;
 
-void bfs(int y, int x) {
-	queue<pair<int, int> > q;
-	q.push(make_pair(y, x));
-	
-	while(!q.empty()) {
-		pair<int, int> cur = q.front();
-		q.pop();
-		int cy = cur.first;
-		int cx = cur.second;
-		
-		if(cy==ty && cx== tx) {
-			break;
-		}
-		
-		int dy[] = {-2, -2, -1, -1, 1, 1, 2, 2};
-		int dx[] = {-1, 1, -2, 2, -2, 2, -1, 1};
-		for(int dir=0; dir<8; dir++) {
-			int ny = cy + dy[dir];
-			int nx = cx + dx[dir];
-
-			if(ny<0 || ny>=size || nx<0 || nx>=size) continue;
-			if(visited[ny][nx] != 0) continue;
-			
-			visited[ny][nx] = visited[cy][cx] + 1;
-			q.push(make_pair(ny, nx));
-		}
-	}
-}
+int dy[] = {-1, -2, -2, -1, 1, 2, 2, 1};
+int dx[] = {-2, -1, 1, 2, -2, -1, 1, 2};
 
 int main(void) {
-	scanf("%d", &T);
-	for(int test_case=1; test_case<=T; test_case++) {
-		scanf("%d", &size);
-		memset(visited, 0, sizeof(visited));
-		scanf("%d %d", &sy, &sx);
-		scanf("%d %d", &ty, &tx);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	
+	int T; cin >> T;
+	for(int tc=1; tc<=T; tc++) {
+		// INIT
+		for(int y=0; y<MAX; y++) {
+			fill(map[y], map[y] + MAX, 0);
+			fill(visited[y], visited[y] + MAX, false);
+		}
 		
-		bfs(sy, sx);
+		// INPUT
+		int y, x;
+		cin >> l;
+		cin >> y >> x; Start = {y, x};
+		cin >> y >> x; End = {y, x};
 		
-		printf("%d\n", visited[ty][tx]);
+		// SIMULATION
+		queue<pair<int, int> > Q;
+		Q.push(make_pair(Start.first, Start.second));
+		visited[Start.first][Start.second] = true;
+		
+		int Answer = 0;
+		bool isFind = false;
+		while(!Q.empty()) {
+			int qSize = Q.size(); 
+			for(int i=0; i<qSize; i++) {
+				int y = Q.front().first;
+				int x = Q.front().second;
+				Q.pop();
+				
+				if(y == End.first && x == End.second) {
+					isFind = true;
+					break;
+				}
+				
+				for(int dir=0; dir<8; dir++) {
+					int ny = y + dy[dir];
+					int nx = x + dx[dir];
+					
+					if(ny<0 || ny>=l || nx<0 || nx>=l) continue;
+					if(visited[ny][nx]) continue;
+					
+					visited[ny][nx] = true;
+					Q.push(make_pair(ny, nx));
+				}
+				
+			}
+			if(isFind) break;
+			if(!Q.empty()) Answer++;
+		}
+		
+		// OUTPUT
+		cout << Answer << '\n';
 	}
+	
 	return 0;
 }
